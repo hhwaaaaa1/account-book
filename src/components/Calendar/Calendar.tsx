@@ -1,10 +1,11 @@
 import { DateTime } from "luxon";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Day from "./components/Day";
 import * as S from "./Calendar.style";
 import Arrow from "@/components/icons/Arrow";
+import Button from "../Button";
 
-interface Dates {
+interface DateTimes {
   start: DateTime;
   end: DateTime;
 }
@@ -13,46 +14,61 @@ interface CalendarProps {
   startDayOfMonth?: number;
 }
 
-export default function Calendar({ startDayOfMonth = 10 }: CalendarProps) {
-  const [dates, setDates] = useState<Dates | null>(null);
+export default function Calendar({ startDayOfMonth = 1 }: CalendarProps) {
+  const now = useRef<DateTime>({} as DateTime);
+  const [dateTimes, setDateTimes] = useState<DateTimes | null>(null);
 
-  function setDatesFrom(date: DateTime) {
+  const days = useMemo<[month: number, day: number][]>(() => {
+    if (!dateTimes) return [];
+    const { start, end } = dateTimes;
+    const { daysInMonth } = start;
+    const diff = (end.diff(start, "day").toObject().days || 0) + 1;
+    return Array(diff)
+      .fill(start.day)
+      .map((d, i) => {
+        const isNextMonth = d + i > daysInMonth;
+        const day = d + i - Number(isNextMonth && daysInMonth);
+        const month = isNextMonth ? end.month : start.month;
+        return [month, day];
+      });
+  }, [dateTimes]);
+
+  const isThisMonth = useMemo(() => {
+    if (!dateTimes) return false;
+    return (
+      dateTimes.start.startOf("millisecond") <= now.current &&
+      dateTimes.end.startOf("millisecond") > now.current
+    );
+  }, [dateTimes]);
+
+  function setDateTimesFrom(date: DateTime) {
     const start = DateTime.local(date.year, date.month, startDayOfMonth);
     const end = start.plus({ month: 1 }).minus({ day: 1 });
-    setDates({ start, end });
+    setDateTimes({ start, end });
+  }
+
+  function goToThisMonth() {
+    setDateTimesFrom(now.current);
   }
 
   function goToPrevMonth() {
-    if (!dates) return;
-    setDatesFrom(dates.start.minus({ month: 1 }));
+    if (!dateTimes) return;
+    setDateTimesFrom(dateTimes.start.minus({ month: 1 }));
   }
 
   function goToNextMonth() {
-    if (!dates) return;
-    setDatesFrom(dates.start.plus({ month: 1 }));
+    if (!dateTimes) return;
+    setDateTimesFrom(dateTimes.start.plus({ month: 1 }));
   }
 
   useEffect(() => {
-    const now = DateTime.local();
-    setDatesFrom(now);
+    now.current = DateTime.local();
+    goToThisMonth();
   }, []);
 
-  const days = useMemo(() => {
-    if (!dates) return [];
+  if (!dateTimes) return <div />;
 
-    const { start, end } = dates;
-    const diff = (end.diff(start, "day").toObject().days || 0) + 1;
-    const { daysInMonth } = start;
-
-    return Array(diff)
-      .fill(start.day)
-      .map((d, i) => d + i - Number(d + i > daysInMonth && daysInMonth));
-  }, [dates]);
-
-  if (!dates) return <div />;
-
-  const { start, end } = dates;
-
+  const { start, end } = dateTimes;
   return (
     <S.Container>
       <S.Header>
@@ -65,6 +81,7 @@ export default function Calendar({ startDayOfMonth = 10 }: CalendarProps) {
           {start.year !== end.year && `${end.year}년 `}
           {start.month !== end.month && `${end.month}월 `}
           {end.day}일
+          {!isThisMonth && <Button onClick={goToThisMonth}>오늘</Button>}
         </S.Title>
         <S.DirButton onClick={goToNextMonth}>
           <span>다음</span>
@@ -84,10 +101,10 @@ export default function Calendar({ startDayOfMonth = 10 }: CalendarProps) {
         {days.map((day, i) => (
           <Day
             key={i}
-            day={day}
-            month={
-              (i === 0 && start.month) || (day === 1 && end.month) || undefined
-            }
+            month={day[0]}
+            day={day[1]}
+            isMonthVisible={i === 0 || day[1] === 1}
+            today={now.current.month === day[0] && now.current.day === day[1]}
           />
         ))}
       </S.Body>

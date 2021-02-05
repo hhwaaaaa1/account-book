@@ -13,7 +13,7 @@ const Element = styled.button<{ color?: string }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 5px;
+  padding: 10px 12px;
   border: 0;
   border-radius: 4px;
   background: none;

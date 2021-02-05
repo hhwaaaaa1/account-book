@@ -26,7 +26,7 @@ export default function Calendar({ startDayOfMonth = 10 }: CalendarProps) {
     if (!dates) return [];
 
     const { start, end } = dates;
-    const { days: diff } = end.diff(start, "day").toObject();
+    const diff = (end.diff(start, "day").toObject().days || 0) + 1;
     const { daysInMonth } = start;
 
     return Array(diff)

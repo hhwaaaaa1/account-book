@@ -2,6 +2,7 @@ import { DateTime } from "luxon";
 import { useEffect, useMemo, useState } from "react";
 import Day from "./components/Day";
 import * as S from "./Calendar.style";
+import Arrow from "@/components/icons/Arrow";
 
 interface Dates {
   start: DateTime;
@@ -12,14 +13,28 @@ interface CalendarProps {
   startDayOfMonth?: number;
 }
 
-export default function Calendar({ startDayOfMonth = 1 }: CalendarProps) {
+export default function Calendar({ startDayOfMonth = 10 }: CalendarProps) {
   const [dates, setDates] = useState<Dates | null>(null);
+
+  function setDatesFrom(date: DateTime) {
+    const start = DateTime.local(date.year, date.month, startDayOfMonth);
+    const end = start.plus({ month: 1 }).minus({ day: 1 });
+    setDates({ start, end });
+  }
+
+  function goToPrevMonth() {
+    if (!dates) return;
+    setDatesFrom(dates.start.minus({ month: 1 }));
+  }
+
+  function goToNextMonth() {
+    if (!dates) return;
+    setDatesFrom(dates.start.plus({ month: 1 }));
+  }
 
   useEffect(() => {
     const now = DateTime.local();
-    const start = DateTime.local(now.year, now.month, startDayOfMonth);
-    const end = start.plus({ month: 1 }).minus({ day: 1 });
-    setDates({ start, end });
+    setDatesFrom(now);
   }, []);
 
   const days = useMemo(() => {
@@ -41,12 +56,20 @@ export default function Calendar({ startDayOfMonth = 1 }: CalendarProps) {
   return (
     <S.Container>
       <S.Header>
+        <S.DirButton onClick={goToPrevMonth}>
+          <Arrow width={15} />
+          <span>이전</span>
+        </S.DirButton>
         <S.Title>
           {start.year}년 {start.month}월 {start.day}일 -{" "}
           {start.year !== end.year && `${end.year}년 `}
           {start.month !== end.month && `${end.month}월 `}
           {end.day}일
         </S.Title>
+        <S.DirButton onClick={goToNextMonth}>
+          <span>다음</span>
+          <Arrow width={15} direction="right" />
+        </S.DirButton>
         <S.Weekdays>
           <S.Weekday>SUN</S.Weekday>
           <S.Weekday>MON</S.Weekday>

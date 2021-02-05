@@ -12,7 +12,7 @@ interface CalendarProps {
   startDayOfMonth?: number;
 }
 
-export default function Calendar({ startDayOfMonth = 10 }: CalendarProps) {
+export default function Calendar({ startDayOfMonth = 1 }: CalendarProps) {
   const [dates, setDates] = useState<Dates | null>(null);
 
   useEffect(() => {
@@ -36,12 +36,16 @@ export default function Calendar({ startDayOfMonth = 10 }: CalendarProps) {
 
   if (!dates) return <div />;
 
+  const { start, end } = dates;
+
   return (
     <S.Container>
       <S.Header>
         <S.Title>
-          {dates.start.year}.{dates.start.month}.{dates.start.day} -{" "}
-          {dates.end.year}.{dates.end.month}.{dates.end.day}
+          {start.year}년 {start.month}월 {start.day}일 -{" "}
+          {start.year !== end.year && `${end.year}년 `}
+          {start.month !== end.month && `${end.month}월 `}
+          {end.day}일
         </S.Title>
         <S.Weekdays>
           <S.Weekday>SUN</S.Weekday>
@@ -53,15 +57,13 @@ export default function Calendar({ startDayOfMonth = 10 }: CalendarProps) {
           <S.Weekday>SAT</S.Weekday>
         </S.Weekdays>
       </S.Header>
-      <S.Body columnStart={(dates.start.weekday % 7) + 1}>
+      <S.Body columnStart={(start.weekday % 7) + 1}>
         {days.map((day, i) => (
           <Day
             key={i}
             day={day}
             month={
-              (i === 0 && dates.start.month) ||
-              (day === 1 && dates.end.month) ||
-              undefined
+              (i === 0 && start.month) || (day === 1 && end.month) || undefined
             }
           />
         ))}

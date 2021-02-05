@@ -15,8 +15,9 @@ const Element = styled.button<{ color?: string }>`
   justify-content: center;
   padding: 5px;
   border: 0;
-  border-radius: 2px;
+  border-radius: 4px;
   background: none;
+  outline: none;
   cursor: pointer;
   &:before {
     content: "";

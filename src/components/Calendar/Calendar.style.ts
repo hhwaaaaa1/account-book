@@ -21,15 +21,17 @@ export const Title = styled.div`
 `;
 
 export const DirButton = styled(Button)`
-  place-self: center;
-  padding: 10px;
-  svg {
-    margin: 0 3px;
-    &:first-child {
-      margin-left: 0;
-    }
-    &:last-child {
-      margin-right: 0;
+  && {
+    place-self: center;
+    padding: 10px 12px;
+    svg {
+      margin: 0 3px;
+      &:first-child {
+        margin-left: 0;
+      }
+      &:last-child {
+        margin-right: 0;
+      }
     }
   }
 `;

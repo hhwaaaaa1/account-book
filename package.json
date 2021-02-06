@@ -25,7 +25,8 @@
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",
-    "eject": "craco eject"
+    "eject": "craco eject",
+    "server": "node ./server/server.js"
   },
   "eslintConfig": {
     "extends": [
@@ -48,6 +49,8 @@
   "devDependencies": {
     "@types/luxon": "^1.25.1",
     "@types/styled-components": "^5.1.7",
-    "craco-alias": "^2.1.1"
-  }
+    "craco-alias": "^2.1.1",
+    "express": "^4.17.1"
+  },
+  "proxy": "http://localhost:3002"
 }

@@ -1,5 +1,6 @@
 import Calendar from "@/components/Calendar";
 import { useEffect, useState } from "react";
+import DailyRecord from "./components/DailyRecord";
 
 function App() {
   const [response, setResponse] = useState<unknown>(null);
@@ -17,7 +18,7 @@ function App() {
   return (
     <div>
       {JSON.stringify(response)}
-      <Calendar />
+      <Calendar dayContents={DailyRecord} />
     </div>
   );
 }

@@ -12,13 +12,17 @@ interface DateTimes {
 
 interface CalendarProps {
   startDayOfMonth?: number;
+  dayContents?: React.FC<{ day: number; month: number; year: number }>;
 }
 
-export default function Calendar({ startDayOfMonth = 1 }: CalendarProps) {
+export default function Calendar({
+  startDayOfMonth = 1,
+  dayContents: DayContents,
+}: CalendarProps) {
   const now = useRef<DateTime>({} as DateTime);
   const [dateTimes, setDateTimes] = useState<DateTimes | null>(null);
 
-  const days = useMemo<[month: number, day: number][]>(() => {
+  const days = useMemo<[day: number, month: number, year: number][]>(() => {
     if (!dateTimes) return [];
     const { start, end } = dateTimes;
     const { daysInMonth } = start;
@@ -29,7 +33,8 @@ export default function Calendar({ startDayOfMonth = 1 }: CalendarProps) {
         const isNextMonth = d + i > daysInMonth;
         const day = d + i - Number(isNextMonth && daysInMonth);
         const month = isNextMonth ? end.month : start.month;
-        return [month, day];
+        const year = isNextMonth ? end.year : start.year;
+        return [day, month, year];
       });
   }, [dateTimes]);
 
@@ -101,11 +106,15 @@ export default function Calendar({ startDayOfMonth = 1 }: CalendarProps) {
         {days.map((day, i) => (
           <Day
             key={i}
-            month={day[0]}
-            day={day[1]}
+            day={day[0]}
+            month={day[1]}
             isMonthVisible={i === 0 || day[1] === 1}
-            today={now.current.month === day[0] && now.current.day === day[1]}
-          />
+            isToday={now.current.month === day[0] && now.current.day === day[1]}
+          >
+            {DayContents && (
+              <DayContents day={day[0]} month={day[1]} year={day[2]} />
+            )}
+          </Day>
         ))}
       </S.Body>
     </S.Container>

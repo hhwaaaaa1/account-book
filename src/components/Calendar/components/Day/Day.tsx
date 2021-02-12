@@ -3,18 +3,20 @@ import styled, { css } from "styled-components";
 
 interface DayProps {
   day: number;
-  month?: number;
-  today?: boolean;
+  month: number;
+  isToday?: boolean;
   isMonthVisible?: boolean;
+  children?: React.ReactNode;
 }
 
-function Day({ day, month, today, isMonthVisible }: DayProps) {
+function Day({ day, month, isToday, isMonthVisible, children }: DayProps) {
   return (
     <Container>
-      <Number today={today}>
+      <Number isToday={isToday}>
         {isMonthVisible && `${month}.`}
         {day}
       </Number>
+      {children}
     </Container>
   );
 }
@@ -22,19 +24,21 @@ function Day({ day, month, today, isMonthVisible }: DayProps) {
 export default memo(Day);
 
 const Container = styled.div`
+  display: grid;
+  grid-template-rows: auto 1fr;
   padding: 10px;
   box-shadow: 0 0 0 1px #eee;
 `;
 
-const Number = styled.span<{ today?: boolean }>`
+const Number = styled.span<{ isToday?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 30px;
   height: 30px;
   border-radius: 100px;
-  ${({ today }) =>
-    today &&
+  ${({ isToday }) =>
+    isToday &&
     css`
       color: #fff;
       font-weight: 600;

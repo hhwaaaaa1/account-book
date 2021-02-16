@@ -5,6 +5,8 @@ import DailyRecordItem, {
   DailyRecordItemData,
 } from "./DailyRecordItem";
 import { v4 as uuid } from "uuid";
+import { observer } from "mobx-react";
+import useStores from "@/stores/useStores";
 
 type DragItem = DailyRecordItemData &
   DragObjectWithType & {
@@ -18,7 +20,7 @@ interface DailyRecordProps {
   year: number;
 }
 
-export default function DailyRecord({ day, month, year }: DailyRecordProps) {
+function DailyRecord({ day, month, year }: DailyRecordProps) {
   const date = useMemo(() => `${year}-${month}-${day}`, [year, month, day]);
   const ref = useRef<HTMLDivElement>(null);
   // TOOD: store로 이동;
@@ -32,6 +34,9 @@ export default function DailyRecord({ day, month, year }: DailyRecordProps) {
       text: "B",
     },
   ]);
+
+  const { store } = useStores();
+  console.log(store);
 
   const [, drop] = useDrop({
     accept: DAILY_RECORD_ITEM,
@@ -74,3 +79,5 @@ export default function DailyRecord({ day, month, year }: DailyRecordProps) {
     </div>
   );
 }
+
+export default observer(DailyRecord);

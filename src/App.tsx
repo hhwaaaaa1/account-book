@@ -4,9 +4,9 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { useEffect, useState } from "react";
 import DailyRecord from "./components/DailyRecord";
 import { Provider } from "mobx-react";
-import GlobalStore from "@/stores/global";
+import Store from "@/stores/index";
 
-const store = new GlobalStore();
+const store = new Store();
 
 function App() {
   // const [response, setResponse] = useState<unknown>(null);

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDrag } from "react-dnd";
 import styled, { css } from "styled-components";
 
@@ -10,39 +10,71 @@ export interface DailyRecordItemData {
 }
 
 interface DailyRecordItemProps {
-  data: DailyRecordItemData;
-  date: string;
-  onDrop(): void;
+  // onDrop(): void;
+  amount?: number;
+  focusOnMount?: boolean;
+  onSave(amount: number): void;
 }
 
 export default function DailyRecordItem({
-  data,
-  date,
-  onDrop,
-}: DailyRecordItemProps) {
-  const ref = useRef<HTMLDivElement>(null);
+  amount,
+  focusOnMount,
+  onSave,
+}: // onDrop,
+DailyRecordItemProps) {
+  const card = useRef<HTMLDivElement>(null);
+  const input = useRef<HTMLInputElement>(null);
+  const [value, setValue] = useState(`${amount || ""}`);
 
-  const [{ isDragging }, drag] = useDrag({
-    item: {
-      type: DAILY_RECORD_ITEM,
-      date,
-      onDrop,
-      ...data,
-    },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
+  // const [{ isDragging }, drag] = useDrag({
+  //   item: {
+  //     type: DAILY_RECORD_ITEM,
+  //     date,
+  //     onDrop,
+  //     // ...data,
+  //   },
+  //   collect: (monitor) => ({
+  //     isDragging: monitor.isDragging(),
+  //   }),
+  // });
 
-  drag(ref);
+  // drag(ref);
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { value } = e.target;
+    const isDigit = /^[0-9]+$/.test(value);
+    if (!isDigit && !!value) return;
+    setValue(value);
+  }
+
+  function handleBlur() {
+    onSave(+value);
+  }
+
+  function handleKeyPress(e: React.KeyboardEvent) {
+    if (e.key !== "Enter") return;
+    onSave(+value);
+  }
+
+  useEffect(() => {
+    if (!focusOnMount) return;
+    input.current?.focus();
+  }, []);
+
   return (
-    <Card ref={ref} isDragging={isDragging}>
-      {data.text}
+    <Card ref={card} onClick={(e) => e.stopPropagation()}>
+      <Input
+        ref={input}
+        value={value}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        onKeyPress={handleKeyPress}
+      />
     </Card>
   );
 }
 
-const Card = styled.div<{ isDragging: boolean }>`
+export const Card = styled.div<{ isDragging?: boolean }>`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -62,4 +94,8 @@ const Card = styled.div<{ isDragging: boolean }>`
   &:first-child {
     margin-top: 0;
   }
+`;
+
+const Input = styled.input`
+  border: 0;
 `;

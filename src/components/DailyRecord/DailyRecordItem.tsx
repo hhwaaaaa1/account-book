@@ -4,41 +4,28 @@ import styled, { css } from "styled-components";
 
 export const DAILY_RECORD_ITEM = "dailyRecordItem";
 
-export interface DailyRecordItemData {
+export interface DailyRecordItemForDrag {
   id: string;
-  text: string;
+  date: string;
 }
 
 interface DailyRecordItemProps {
-  // onDrop(): void;
+  id: string;
+  date: string;
   amount?: number;
   focusOnMount?: boolean;
   onSave(amount: number): void;
 }
 
 export default function DailyRecordItem({
+  id,
+  date,
   amount,
   focusOnMount,
   onSave,
-}: // onDrop,
-DailyRecordItemProps) {
-  const card = useRef<HTMLDivElement>(null);
+}: DailyRecordItemProps) {
   const input = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState(`${amount || ""}`);
-
-  // const [{ isDragging }, drag] = useDrag({
-  //   item: {
-  //     type: DAILY_RECORD_ITEM,
-  //     date,
-  //     onDrop,
-  //     // ...data,
-  //   },
-  //   collect: (monitor) => ({
-  //     isDragging: monitor.isDragging(),
-  //   }),
-  // });
-
-  // drag(ref);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { value } = e.target;
@@ -61,8 +48,17 @@ DailyRecordItemProps) {
     input.current?.focus();
   }, []);
 
+  const [{ isDragging }, drag] = useDrag({
+    item: { type: DAILY_RECORD_ITEM, id, date },
+    collect: (monitor) => ({ isDragging: monitor.isDragging() }),
+  });
+
   return (
-    <Card ref={card} onClick={(e) => e.stopPropagation()}>
+    <Card
+      ref={drag}
+      isDragging={isDragging}
+      onClick={(e) => e.stopPropagation()}
+    >
       <Input
         ref={input}
         value={value}
